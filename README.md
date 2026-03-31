@@ -3,20 +3,17 @@
 CSCD 396 will provide students with an introduction to DevOps principles of People, Process and Tools. We'll cover working on a technical team, the modern software development lifecycle, tooling needed to deploy systems to the cloud, and how advancements in AI are impacting DevOps.
 
 - This class will give you a core understanding of how to leverage DevOps in both small and enterprise level projects. 
-- We will be building solutions in Azure, Microsoft's Cloud Solution and this course will help prepare students for Microsoft's Certifcation Exam AZ-204.
+- We will be building solutions in Azure, Microsoft's Cloud Platform. This course will help prepare students for Microsoft's Certifcation Exam AZ-204.
 - We will cover practical examples that focus on the use of cloud bases services in Azure over advanced programming concepts.
-
 
 ## Themes
 - DevOps Principles and Practices
 - Azure Cloud Services
-- GitHub and CI/CD
+- GitHub and GitHub ActionsCI/CD
 - AI in DevOps
-- Building and Deploying Scalable Applications
+- Building and Deploying Scalable Application Solutions
 - Security and Best Practices in Cloud Development
 - Project and Team Collaboration and Communication
-
-
 
 ## Instructors and Class Information
 
@@ -62,7 +59,7 @@ We will be using Visual Studio Code exclusively.
 - [ASP.NET](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-7.0)
 - [Visual Studio Code](https://code.visualstudio.com/download) or a comparable text editor
 - VS Code Extensions:
-  - [Copilot]
+  - [Copilot]()
   - [Azure Tools for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack)
   - [C# for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp)
   - [C# Dev Kit for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit) (optional)
