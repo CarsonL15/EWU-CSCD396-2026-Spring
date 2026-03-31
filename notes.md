@@ -5,8 +5,6 @@
 - Integrate AI and AI Foundry into the services
 
 
-
-
 Integrating Security and Code Quality Checks
 Deployment Options
 

@@ -1,12 +1,12 @@
 # Lectures
 - [Recording Links](asdf)
-- This is an MS Teams link and everyone in the class should have access. If not, please contact an instructor.
+- This is an MS Teams link and everyone in the class will have access. 
 
 ## What students should already know
 
 - How to program in at least one language
 - Using the command line (PS or Bash)
-- VS Code (preferred) or IDE
+- VS Code or other well supported IDE
 
 ## Lecture Schedule
 
@@ -17,7 +17,7 @@
 - Class Overview
 - Cloud Computing
 - Azure Services survey
-- What about AWS
+- What about AWS?
 - Azure Fundamentals
   - Entra ID, IAM, RBAC
   - Resource Groups
@@ -57,6 +57,14 @@
 
 ## Lecture 4
 ### Topics Covered
+- Infrastructure as Code (IaC)
+- Bicep
+- Terraform
+- Deploy infrastructure with IaC and GitHub Actions
+- Redeploy app service from Lesson 3 with IaC
+
+## Lecture 5 
+### Topics Covered
 - Q and A
 - Review Assignment 2
 - Virtual Machines
@@ -67,15 +75,14 @@
 - Azure Container Apps**
 - Kubernetes and Azure Kubernetes Service (AKS)**
 
-## Lecture 5
+## Lecture 6
+Serverless Architecture
 ### Topics Covered
 - Q and A
-- Finish ACI
 - Functions
 - Logic Apps
+- Cosmos DB and Azure SQL
 
-## Lecture 6
-### Topics Covered
 - Explore Functions
 - Discuss excercises
 - parameters
@@ -83,6 +90,7 @@
 - function costs
 
 ## Lecture 7
+Messaging and Eventing
 ### Topics Covered
 - Messages and Events
 - Service Bus overview
@@ -120,11 +128,11 @@
 
 ## Lecture 13
 ### Topics Covered
-- Query Cosmos DB
+- Query Cosmos DB ***
 
 ## Lecture 14
 ### Topics Covered
-- API Management continued
+- API Management continued ***
 - Something
 
 ## Lecture 15
@@ -135,15 +143,23 @@
 - Redis Cache
 
 ## Lecture 16
+Set the plan for remaining classes
 ### Topics Covered
 - Build out web app
 
 ## Lecture 17
+Agile Project Management
 ### Topics Covered
-- Infrastructure as Code (IaC)
-- Bicep
-- Terraform
-- Deploy infrastructure with IaC and GitHub Actions
+- Agile Principles and Practices
+- GitHub Issues and Projects
+- Azure DevOps
+- Jira
+- Scrum Framework
+  - Running a Sprint
+  - Review and retrospective
+  - Planning and estimation
+- Team project management and communication  
+
 
 ## Lecture 18
 ### Topics Covered
