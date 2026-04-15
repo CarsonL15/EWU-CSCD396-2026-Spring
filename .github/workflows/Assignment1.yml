@@ -1,0 +1,42 @@
+name: Assignment 1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - assignment1
+    paths:
+      - 'Assignment1/**'
+      - '.github/workflows/Assignment1.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  list-resources:
+    runs-on: windows-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login with OIDC
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.CLIENT_ID }}
+          tenant-id: ${{ vars.TENANT_ID }}
+          subscription-id: ${{ vars.SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Run Assignment1 Script
+        uses: azure/powershell@v1
+        with:
+          azPSVersion: 'latest'
+          inlineScript: |
+            ./Assignment1/Assignment1.ps1
+
+      - name: Logout from Azure
+        if: always()
+        run: az logout
