@@ -101,7 +101,7 @@ Messaging and Eventing
 ## Lecture 9
 ### Topics Covered
 - Static Web Apps
-- APIs
+- APIs and API Management
 - Content Delivery Networks (CDN)
 
 ## Lecture 10
@@ -120,12 +120,12 @@ Messaging and Eventing
 
 ## Lecture 12
 ### Topics Covered
-- Finish Cosmos DB
-- API Management intro
+- Query Cosmos DB 
+- Cosmos DB Change Feed
 
 ## Lecture 13
 ### Topics Covered
-- Query Cosmos DB ***
+- AI Foundry
 
 ## Lecture 14
 ### Topics Covered
@@ -135,7 +135,6 @@ Messaging and Eventing
 ## Lecture 15
 ### Topics Covered
 - Logic App w/ Sentiment Analysis
-- Cosmos DB Change Feed
 - Static site updates w/ secure a page
 - Redis Cache
 
@@ -177,6 +176,7 @@ Agile Project Management
 ### Topics Covered
 - TBD
 
+***
 
 ## Topics to Cover
 - o GitHub Issues/Boards

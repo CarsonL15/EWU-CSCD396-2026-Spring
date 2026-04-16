@@ -1,6 +1,8 @@
 
 ## Containerize with DotNet
 [Containerize with DotNet](https://learn.microsoft.com/en-us/dotnet/core/containers/overview?tabs=windows)
+Assumes you have Docker installed and running on your machine.
+
 1. use built in container tools in .NET 8+
 1. set project properties to enable containerization
     ``` 
@@ -10,7 +12,7 @@
     </PropertyGroup>
     ```
 1. Be sure Docker is running
-1. Run `dotnet publish -c Release` to build and publish the application, which will also create a Docker image.
+1. Run `dotnet publish /t:PublishContainer` to build and publish the application and target creating a container image.
 1. Run `docker images` to see the created image.
 1. Properties can be set in the project file or via command line arguments to `dotnet publish` to specify the base image, target OS, and other containerization options.
     ```
@@ -28,5 +30,6 @@
 
 ## Containerize with Docker
 [Containerize with Docker](https://learn.microsoft.com/en-us/dotnet/core/docker/build-container?tabs=windows&pivots=dotnet-10-0)
+
 
 https://learn.microsoft.com/en-us/dotnet/architecture/microservices/
