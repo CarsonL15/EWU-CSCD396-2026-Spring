@@ -25,14 +25,17 @@ Complete the following Tutorials and do not clean up resources until assignment 
    {https://learn.microsoft.com/en-us/azure/app-service/quickstart-dotnetcore?tabs=net70&pivots=development-environment-cli}
    Note: Deploy application code using az cli, not the VSCode extension
 
-- Web App Created ❌✅
-  (You can use the below steps to publish your app OR use the 'az webapp up' command in the above tutorial)
+- Container App Created ❌✅
+  (You can use the below steps to publish your app)
 
-  - Run command from your terminal 'dotnet publish SampleApp/MyFirstAzureWebApp'. This builds the application and files are genearted in SampleApp/MyFirstAzureWebApp/bin/Debug/net7.0/publish folder
-  - Zip the items in your created publish folder
-  - Use 'az webapp deploy' command to deploy your zip file to the application
+  - Create a new app using dotnet new command 
+  - See docs/containers.md for how to create and deploy an image of your new app code to azure container registry
+  - Create a terraform main.tf and variables.tf files within a terraform folder. These files should contain relevant HCL for deploying a container app. 
+  - Use a variable for the container image name
+  - Create a workflow that deploys your container app with Terraform using the init, plan, and apply commands
 
-- Url Accessible ❌✅
+- Url Accessible (and working) ❌✅
+- Successful Workflow Run to Deploy Infrastructure ❌✅
 
 2. Create and deploy an Auzre Function Bound to Service Bus. The function should write messages received to a storage account
 
