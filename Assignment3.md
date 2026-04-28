@@ -6,7 +6,7 @@ The purpose of this assignment is to solidify your learning of:
 
 - Build and deploying containers
 - Terraform IaC
-- Fnctions and Logic Apps
+- Functions and Logic Apps
 - Messaging and Eventing
 
 ## Prerequisites
@@ -28,7 +28,7 @@ Complete the following Tutorials and do not clean up resources until assignment 
 - Create Storage Account ❌✅
 - Function App Identity Granted Access to Storage Account ❌✅
 
-2. Add a feature to the container app from Assignment 2 to write a message to the Service Bus from step 2. Ideally this ia a text box for the message and a button to submit the message to the bus. You can use the Azure SDK for .NET to send messages to the bus from your container app.
+2. Add a feature to the container app from Assignment 2 to write a message to the Service Bus from step 2. Ideally this is a text box for the message and a button to submit the message to the bus. You can use the Azure SDK for .NET to send messages to the bus from your container app.
 
 - Add an identity to the container app (by updating your terraform configuration) ❌✅
 - Assign the container app identity adequate permissions on your service bus to send messages. ❌✅
@@ -40,9 +40,9 @@ Complete the following Tutorials and do not clean up resources until assignment 
  - Terraform code changes should trigger deployment of infrastructure code. The change in iac does not have to be fancy, but should be easy to recognize
  - Redeploy the application code once the Terraform is deployed
  
-- Do  ❌✅
-- Create Storage Account ❌✅
-- Function App Identity Granted Access to Storage Account ❌✅
+- Application code changes trigger deployment of the application ❌✅
+- Terraform code changes trigger deployment of infrastructure code ❌✅
+- Application code is redeployed after Terraform deployment completes ❌✅
 
 4. Please add jcurry9@ewu.edu as a contributor to your subscription, otherwise grading will not be possible.
 
