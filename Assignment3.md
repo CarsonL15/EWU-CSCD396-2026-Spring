@@ -34,6 +34,16 @@ Complete the following Tutorials and do not clean up resources until assignment 
 - Assign the container app identity adequate permissions on your service bus to send messages. ❌✅
 - Can I enter a message on your site and see the message appear in your storage account ❌✅
 
+3. Configure your GitHub Action workflow to automatically deploy when you modify application code.
+
+ - Application code should trigger deployment of application code
+ - Terraform code changes should trigger deployment of infrastructure code. The change in iac does not have to be fancy, but should be easy to recognize
+ - Redeploy the application code once the Terraform is deployed
+ 
+- Do  ❌✅
+- Create Storage Account ❌✅
+- Function App Identity Granted Access to Storage Account ❌✅
+
 4. Please add jcurry9@ewu.edu as a contributor to your subscription, otherwise grading will not be possible.
 
 
