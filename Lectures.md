@@ -100,19 +100,14 @@ Messaging and Eventing
 
 ## Lecture 9
 ### Topics Covered
-- Static Web Apps
-- APIs and API Management
-- Content Delivery Networks (CDN)
+- Event Grid and Event Hub
 
 ## Lecture 10
 ### Topics Covered
-- Azure Static Web App Networking and DNS
+- Azure Static Web Apps
+- Content Delivery Networks (CDN)
 - Networking and DNS
-- Connecting
-- Finish off Event Grid
-- Solution architecture
-- Planning
-- Deployments
+- APIs and API Management
 
 ## Lecture 11
 ### Topics Covered
