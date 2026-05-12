@@ -52,9 +52,9 @@ variable "github_actions_sp_object_id" {
 # --- Assignment 3 additions ---
 
 variable "service_bus_namespace_name" {
-  description = "Globally unique Service Bus namespace name"
+  description = "Globally unique Service Bus namespace name. Suffix '-cus' so the name doesn't collide with the orphan from the prior failed eastus run."
   type        = string
-  default     = "sb-assignment3-carsonl15"
+  default     = "sb-asn3-cus-cl15"
 }
 
 variable "service_bus_queue_name" {
@@ -82,9 +82,9 @@ variable "function_app_name" {
 }
 
 variable "sql_server_name" {
-  description = "Globally unique Azure SQL Server name"
+  description = "Globally unique Azure SQL Server name. Suffix '-cus' so the name doesn't collide with the orphan from the prior failed eastus run."
   type        = string
-  default     = "sql-assignment3-carsonl15"
+  default     = "sql-asn3-cus-cl15"
 }
 
 variable "sql_database_name" {
