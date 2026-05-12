@@ -85,7 +85,7 @@ resource "time_sleep" "wait_for_acr_pull" {
 
 resource "azurerm_servicebus_namespace" "main" {
   name                = var.service_bus_namespace_name
-  location            = azurerm_resource_group.main.location
+  location            = var.secondary_location
   resource_group_name = azurerm_resource_group.main.name
   sku                 = "Standard"
 }
@@ -114,7 +114,7 @@ resource "azurerm_role_assignment" "func_sb_receiver" {
 resource "azurerm_storage_account" "function" {
   name                     = var.function_storage_account_name
   resource_group_name      = azurerm_resource_group.main.name
-  location                 = azurerm_resource_group.main.location
+  location                 = var.secondary_location
   account_tier             = "Standard"
   account_replication_type = "LRS"
   min_tls_version          = "TLS1_2"
@@ -137,7 +137,7 @@ resource "azurerm_role_assignment" "func_blob_contributor" {
 
 resource "azurerm_application_insights" "main" {
   name                = "ai-${var.function_app_name}"
-  location            = azurerm_resource_group.main.location
+  location            = var.secondary_location
   resource_group_name = azurerm_resource_group.main.name
   workspace_id        = azurerm_log_analytics_workspace.main.id
   application_type    = "web"
@@ -146,7 +146,7 @@ resource "azurerm_application_insights" "main" {
 resource "azurerm_service_plan" "function" {
   name                = "asp-${var.function_app_name}"
   resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
+  location            = var.secondary_location
   os_type             = "Linux"
   sku_name            = "Y1"
 }
@@ -154,7 +154,7 @@ resource "azurerm_service_plan" "function" {
 resource "azurerm_linux_function_app" "main" {
   name                = var.function_app_name
   resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
+  location            = var.secondary_location
 
   storage_account_name       = azurerm_storage_account.function.name
   storage_account_access_key = azurerm_storage_account.function.primary_access_key
@@ -205,7 +205,7 @@ resource "random_password" "sql_admin" {
 resource "azurerm_mssql_server" "main" {
   name                         = var.sql_server_name
   resource_group_name          = azurerm_resource_group.main.name
-  location                     = azurerm_resource_group.main.location
+  location                     = var.secondary_location
   version                      = "12.0"
   administrator_login          = var.sql_admin_login
   administrator_login_password = random_password.sql_admin.result

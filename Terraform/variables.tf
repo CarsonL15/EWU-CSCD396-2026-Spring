@@ -4,9 +4,15 @@ variable "resource_group_name" {
 }
 
 variable "location" {
-  description = "Azure region for resources"
+  description = "Primary Azure region for Assignment 2 resources (Container App, ACR, Log Analytics)"
   type        = string
   default     = "eastus"
+}
+
+variable "secondary_location" {
+  description = "Region for Assignment 3 resources. East US has VM quota and SQL provisioning restrictions on Carson's subscription, so the new resources go in a separate region with its own quota."
+  type        = string
+  default     = "centralus"
 }
 
 variable "environment_name" {
