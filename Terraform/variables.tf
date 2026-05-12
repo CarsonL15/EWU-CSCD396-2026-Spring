@@ -42,3 +42,53 @@ variable "github_actions_sp_object_id" {
   description = "Object ID of the GitHub Actions service principal. Used to grant AcrPush so the workflow can push images. Looked up by the workflow via 'az ad sp show'."
   type        = string
 }
+
+# --- Assignment 3 additions ---
+
+variable "service_bus_namespace_name" {
+  description = "Globally unique Service Bus namespace name"
+  type        = string
+  default     = "sb-assignment3-carsonl15"
+}
+
+variable "service_bus_queue_name" {
+  description = "Service Bus queue the web app sends to and the function reads from"
+  type        = string
+  default     = "messages"
+}
+
+variable "function_storage_account_name" {
+  description = "Globally unique storage account that holds both the function runtime files and the messages blob container. 3-24 lowercase alphanumeric chars."
+  type        = string
+  default     = "sa3msgcarsonl15a3"
+}
+
+variable "messages_blob_container_name" {
+  description = "Blob container the function writes incoming messages to"
+  type        = string
+  default     = "messages"
+}
+
+variable "function_app_name" {
+  description = "Globally unique Function App name"
+  type        = string
+  default     = "func-assignment3-carsonl15"
+}
+
+variable "sql_server_name" {
+  description = "Globally unique Azure SQL Server name"
+  type        = string
+  default     = "sql-assignment3-carsonl15"
+}
+
+variable "sql_database_name" {
+  description = "Azure SQL Database name"
+  type        = string
+  default     = "sqldb-assignment3"
+}
+
+variable "sql_admin_login" {
+  description = "SQL administrator login"
+  type        = string
+  default     = "sqladmin"
+}
