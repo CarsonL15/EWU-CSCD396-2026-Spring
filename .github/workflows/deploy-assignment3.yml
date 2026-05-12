@@ -1,0 +1,241 @@
+name: Assignment 3 - Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force all jobs to run regardless of changed paths'
+        type: choice
+        default: 'false'
+        options: ['true', 'false']
+  push:
+    branches:
+      - assignment3
+    paths:
+      - 'Assignment3/**'
+      - 'Terraform/**'
+      - '.github/workflows/deploy-assignment3.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_VERSION: '1.5.0'
+  WORKING_DIR: './Terraform'
+  RG_NAME: 'rg-assignment2-carsonl15'
+  CONTAINER_APP_NAME: 'ca-assignment2'
+  FUNCTION_APP_NAME: 'func-assignment3-carsonl15'
+  WEBAPP_IMAGE_NAME: 'assignment3-webapp'
+  # Backend state (shared with assignment2 since the RG is shared)
+  BACKEND_RESOURCE_GROUP: 'rg-tfstate-carsonl15'
+  BACKEND_STORAGE_ACCOUNT: 'tfstatecarsonl15a2'
+  BACKEND_CONTAINER: 'tfstate'
+  BACKEND_KEY: 'assignment2.terraform.tfstate'
+  # Azure auth for Terraform's azurerm provider
+  ARM_CLIENT_ID: ${{ vars.CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ vars.TENANT_ID }}
+  ARM_USE_OIDC: 'true'
+  # Terraform input variables
+  TF_VAR_resource_group_name: 'rg-assignment2-carsonl15'
+  TF_VAR_location: 'eastus'
+  TF_VAR_environment_name: 'env-assignment2'
+  TF_VAR_container_app_name: 'ca-assignment2'
+  TF_VAR_container_registry_name: ${{ vars.CONTAINER_REGISTRY_NAME }}
+
+jobs:
+  detect:
+    name: Detect what changed
+    runs-on: ubuntu-latest
+    outputs:
+      terraform: ${{ steps.changes.outputs.terraform }}
+      app: ${{ steps.changes.outputs.app }}
+      function: ${{ steps.changes.outputs.function }}
+      force: ${{ github.event.inputs.force }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            terraform:
+              - 'Terraform/**'
+              - '.github/workflows/deploy-assignment3.yml'
+            app:
+              - 'Assignment3/WebApp/**'
+            function:
+              - 'Assignment3/Function/**'
+
+  infra:
+    name: Terraform Apply (infra only)
+    runs-on: ubuntu-latest
+    needs: detect
+    environment: production
+    if: needs.detect.outputs.terraform == 'true' || needs.detect.outputs.force == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.CLIENT_ID }}
+          tenant-id: ${{ vars.TENANT_ID }}
+          subscription-id: ${{ vars.SUBSCRIPTION_ID }}
+
+      - name: Register required Azure resource providers
+        run: |
+          for ns in Microsoft.App Microsoft.OperationalInsights Microsoft.ContainerRegistry Microsoft.ManagedIdentity Microsoft.ServiceBus Microsoft.Web Microsoft.Storage Microsoft.Sql; do
+            az provider register --namespace "$ns" --wait
+          done
+
+      - name: Look up service principal object ID
+        run: |
+          SP_OBJECT_ID=$(az ad sp show --id "${{ vars.CLIENT_ID }}" --query id -o tsv)
+          echo "TF_VAR_github_actions_sp_object_id=$SP_OBJECT_ID" >> "$GITHUB_ENV"
+
+      - name: Terraform Init
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ env.BACKEND_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ env.BACKEND_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=${{ env.BACKEND_CONTAINER }}" \
+            -backend-config="key=${{ env.BACKEND_KEY }}"
+
+      # The container app already exists; the lifecycle ignore_changes on the
+      # image keeps TF from rolling it back, but we still need *some* value for
+      # the variable. Reading the current live image keeps the plan no-op-ish.
+      - name: Read current container app image
+        id: img
+        run: |
+          IMG=$(az containerapp show -n "${{ env.CONTAINER_APP_NAME }}" -g "${{ env.RG_NAME }}" --query "properties.template.containers[0].image" -o tsv 2>/dev/null || echo "")
+          if [ -z "$IMG" ]; then IMG="mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"; fi
+          echo "image=$IMG" >> "$GITHUB_OUTPUT"
+
+      - name: Terraform Plan
+        working-directory: ${{ env.WORKING_DIR }}
+        env:
+          TF_VAR_container_image: ${{ steps.img.outputs.image }}
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform apply -auto-approve tfplan
+
+      - name: Summary
+        run: |
+          echo "## ✅ Infrastructure deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "App and Function jobs will redeploy now." >> "$GITHUB_STEP_SUMMARY"
+
+  app:
+    name: Build/Push image, Update Container App
+    runs-on: ubuntu-latest
+    needs: [detect, infra]
+    environment: production
+    if: |
+      always() &&
+      (needs.detect.outputs.app == 'true' || needs.infra.result == 'success' || needs.detect.outputs.force == 'true')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.CLIENT_ID }}
+          tenant-id: ${{ vars.TENANT_ID }}
+          subscription-id: ${{ vars.SUBSCRIPTION_ID }}
+
+      - name: ACR Login
+        run: az acr login --name "${{ vars.CONTAINER_REGISTRY_NAME }}"
+
+      - name: Compute image reference
+        id: image
+        run: |
+          TAG="${GITHUB_SHA::7}"
+          REF="${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${WEBAPP_IMAGE_NAME}:${TAG}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          echo "Will publish: $REF"
+
+      - name: Publish container image
+        run: |
+          dotnet publish Assignment3/WebApp/WebApp.csproj \
+            --os linux --arch x64 \
+            -c Release \
+            /t:PublishContainer \
+            /p:ContainerRegistry=${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io \
+            /p:ContainerImageTag=${{ steps.image.outputs.tag }}
+
+      - name: Roll Container App revision
+        run: |
+          az containerapp update \
+            --name "${{ env.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RG_NAME }}" \
+            --image "${{ steps.image.outputs.ref }}"
+
+      - name: Verify URL responds
+        run: |
+          FQDN=$(az containerapp show -n "${{ env.CONTAINER_APP_NAME }}" -g "${{ env.RG_NAME }}" --query "properties.configuration.ingress.fqdn" -o tsv)
+          URL="https://$FQDN"
+          echo "Probing $URL ..."
+          for attempt in 1 2 3 4 5 6 7 8; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL" || echo "000")
+            if [ "$CODE" = "200" ]; then
+              echo "✓ App responded with 200 on attempt $attempt"
+              echo "## ✅ App deployed and verified" >> "$GITHUB_STEP_SUMMARY"
+              echo "- URL: $URL" >> "$GITHUB_STEP_SUMMARY"
+              echo "- Image: ${{ steps.image.outputs.ref }}" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "Attempt $attempt got HTTP $CODE, sleeping 20s..."
+            sleep 20
+          done
+          echo "❌ App did not respond with 200 after 8 attempts"
+          exit 1
+
+  function:
+    name: Build/Deploy Function
+    runs-on: ubuntu-latest
+    needs: [detect, infra]
+    environment: production
+    if: |
+      always() &&
+      (needs.detect.outputs.function == 'true' || needs.infra.result == 'success' || needs.detect.outputs.force == 'true')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.CLIENT_ID }}
+          tenant-id: ${{ vars.TENANT_ID }}
+          subscription-id: ${{ vars.SUBSCRIPTION_ID }}
+
+      - name: Publish function
+        working-directory: Assignment3/Function
+        run: |
+          dotnet publish -c Release -o output
+          cd output
+          zip -r ../function.zip .
+
+      - name: Deploy function (zip)
+        run: |
+          az functionapp deployment source config-zip \
+            --resource-group "${{ env.RG_NAME }}" \
+            --name "${{ env.FUNCTION_APP_NAME }}" \
+            --src Assignment3/Function/function.zip
+
+      - name: Summary
+        run: |
+          echo "## ✅ Function deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Name: ${{ env.FUNCTION_APP_NAME }}" >> "$GITHUB_STEP_SUMMARY"
