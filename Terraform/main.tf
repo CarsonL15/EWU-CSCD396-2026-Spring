@@ -257,6 +257,12 @@ resource "azurerm_container_app" "main" {
       cpu    = 0.25
       memory = "0.5Gi"
 
+      # DefaultAzureCredential defaults to system-assigned MI; this tells it
+      # which user-assigned MI to use instead.
+      env {
+        name  = "AZURE_CLIENT_ID"
+        value = azurerm_user_assigned_identity.container_app.client_id
+      }
       env {
         name  = "SERVICE_BUS_NAMESPACE"
         value = "${azurerm_servicebus_namespace.main.name}.servicebus.windows.net"
