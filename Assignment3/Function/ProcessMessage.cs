@@ -25,7 +25,7 @@ public class ProcessMessage(ILogger<ProcessMessage> logger)
         FunctionContext context)
     {
         var blobName = $"{DateTime.UtcNow:yyyy/MM/dd/HHmmss-fff}-{Guid.NewGuid():N}.txt";
-        logger.LogInformation("Received message ({Length} chars), writing to blob {Blob}", message.Length, blobName);
+        logger.LogInformation("Received Service Bus message ({Length} chars); writing to blob {Blob}", message.Length, blobName);
 
         await Container.UploadBlobAsync(blobName, BinaryData.FromString(message));
     }
