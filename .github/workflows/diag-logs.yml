@@ -51,3 +51,25 @@ jobs:
           else
             echo "App Insights component not found"
           fi
+
+      - name: List recent blobs in messages container
+        run: |
+          SA="sa3msgcarsonl15a3"
+          KEY=$(az storage account keys list -g "${{ env.RG_NAME }}" -n "$SA" --query '[0].value' -o tsv)
+          az storage blob list -c messages --account-name "$SA" --account-key "$KEY" \
+            --query "reverse(sort_by([].{name:name, size:properties.contentLength, modified:properties.lastModified}, &modified)) | [0:10]" -o table || true
+
+      - name: Query SQL Messages table (top 10)
+        run: |
+          set +e
+          # Get the SQL admin password from the container app secret
+          PWD=$(az containerapp secret show -n "${{ env.CONTAINER_APP_NAME }}" -g "${{ env.RG_NAME }}" --secret-name sql-connection-string --query value -o tsv 2>/dev/null | sed -nE 's/.*Password=([^;]+);.*/\1/p')
+          SQL_FQDN="sql-asn3-cus-cl15.database.windows.net"
+          if [ -z "$PWD" ]; then echo "couldn't fetch SQL password"; exit 0; fi
+          # Install sqlcmd
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add - >/dev/null 2>&1
+          curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list >/dev/null
+          sudo ACCEPT_EULA=Y apt-get update -y >/dev/null 2>&1
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18 unixodbc-dev >/dev/null 2>&1
+          /opt/mssql-tools18/bin/sqlcmd -S "tcp:$SQL_FQDN,1433" -d sqldb-assignment3 -U sqladmin -P "$PWD" -Q "SELECT TOP 10 Id, Message, CreatedAt FROM dbo.Messages ORDER BY Id DESC;" -C
+          true
