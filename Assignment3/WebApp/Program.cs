@@ -41,7 +41,7 @@ app.MapGet("/", () => Results.Content($$"""
     </head>
     <body>
       <h1>Hello from Azure Container Apps</h1>
-      <p>Built with .NET 8, containerized via the SDK container tools, deployed via Terraform and GitHub Actions. Messages flow through Service Bus to a Function and land in blob storage.</p>
+      <p>Built with .NET 8, containerized via the SDK container tools, deployed via Terraform and GitHub Actions. Messages flow through Service Bus to an Azure Function and land in blob storage; the extra-credit copy also gets persisted to Azure SQL.</p>
 
       <form method="post" action="/send">
         <label>Message: <input type="text" name="message" required maxlength="500" placeholder="type a message" /></label>
