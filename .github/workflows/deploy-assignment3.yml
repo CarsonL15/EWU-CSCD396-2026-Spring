@@ -55,9 +55,14 @@ jobs:
       force: ${{ github.event.inputs.force }}
     steps:
       - uses: actions/checkout@v4
+      # Compare against the previous commit on this branch. Without an explicit
+      # base, dorny v3 falls back to the merge base with the default branch and
+      # would treat every file as "changed" on each push.
       - uses: dorny/paths-filter@v3
         id: changes
         with:
+          base: ${{ github.event.before }}
+          ref: ${{ github.event.after }}
           filters: |
             terraform:
               - 'Terraform/**'
