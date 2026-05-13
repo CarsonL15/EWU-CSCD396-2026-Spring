@@ -16,13 +16,12 @@ browser → POST /send → Container App
 
 ## How the workflow triggers
 
-Single workflow `.github/workflows/deploy-assignment3.yml`. A `dorny/paths-filter` step decides what to run:
+Single workflow `.github/workflows/deploy-assignment3.yml`. A `dorny/paths-filter@v3` step (with `base: github.event.before` so it diffs against the previous commit on the branch, not the merge base with main) decides what to run:
 
-| Push touches... | Jobs that run |
-|---|---|
-| `Terraform/**` only | `infra` → then `app` and `function` (force-redeploy after IaC) |
-| `Assignment3/WebApp/**` only | `app` only |
-| `Assignment3/Function/**` only | `function` only |
-| Multiple paths | matching jobs run; `infra` always forces both redeploys |
+| Push touches... | Jobs that run | Verifying run |
+|---|---|---|
+| `Terraform/**` only | `infra` → then `app` and `function` (force-redeploy after IaC) | [25779124378](https://github.com/CarsonL15/EWU-CSCD396-2026-Spring/actions/runs/25779124378) |
+| `Assignment3/WebApp/**` only | `app` only (infra and function skipped) | [25779250682](https://github.com/CarsonL15/EWU-CSCD396-2026-Spring/actions/runs/25779250682) |
+| `Assignment3/Function/**` only | `function` only (infra and app skipped) | [25779473499](https://github.com/CarsonL15/EWU-CSCD396-2026-Spring/actions/runs/25779473499) |
 
 This satisfies "app code → app deploy only", "TF → infra deploy only", and "redeploy app after TF" from the spec.
