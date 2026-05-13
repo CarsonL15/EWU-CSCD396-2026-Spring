@@ -1,0 +1,49 @@
+name: Diag - Fetch Container App + Function logs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  RG_NAME: 'rg-assignment2-carsonl15'
+  CONTAINER_APP_NAME: 'ca-assignment2'
+  FUNCTION_APP_NAME: 'func-assignment3-carsonl15'
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.CLIENT_ID }}
+          tenant-id: ${{ vars.TENANT_ID }}
+          subscription-id: ${{ vars.SUBSCRIPTION_ID }}
+
+      - name: Container App revision status
+        run: |
+          az containerapp revision list -n "${{ env.CONTAINER_APP_NAME }}" -g "${{ env.RG_NAME }}" \
+            --query "[].{name:name, active:properties.active, healthState:properties.healthState, image:properties.template.containers[0].image, created:properties.createdTime}" -o table || true
+
+      - name: Container App logs (last 200 lines)
+        run: |
+          az containerapp logs show -n "${{ env.CONTAINER_APP_NAME }}" -g "${{ env.RG_NAME }}" --type console --tail 200 || true
+
+      - name: Function App settings sanity (no secrets)
+        run: |
+          az functionapp config appsettings list -n "${{ env.FUNCTION_APP_NAME }}" -g "${{ env.RG_NAME }}" \
+            --query "[?!(starts_with(name, 'WEBSITE_AUTH') || starts_with(name, 'AzureWebJobsStorage'))].{name:name, value:value}" -o table || true
+
+      - name: Function App invocation log (last 50 events from App Insights)
+        run: |
+          AI_ID=$(az monitor app-insights component show -g "${{ env.RG_NAME }}" --app "ai-${{ env.FUNCTION_APP_NAME }}" --query id -o tsv 2>/dev/null || echo "")
+          if [ -n "$AI_ID" ]; then
+            az monitor app-insights query --ids "$AI_ID" \
+              --analytics-query "traces | where timestamp > ago(1h) | order by timestamp desc | take 50 | project timestamp, severityLevel, message" \
+              -o table || true
+          else
+            echo "App Insights component not found"
+          fi
