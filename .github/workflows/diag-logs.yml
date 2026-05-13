@@ -2,6 +2,10 @@ name: Diag - Fetch Container App + Function logs
 
 on:
   workflow_dispatch:
+  push:
+    branches: [assignment3]
+    paths:
+      - '.github/workflows/diag-logs.yml'
 
 permissions:
   id-token: write
