@@ -27,6 +27,15 @@ jobs:
           tenant-id: ${{ vars.TENANT_ID }}
           subscription-id: ${{ vars.SUBSCRIPTION_ID }}
 
+      - name: Delete eastus orphan resources
+        run: |
+          set +e
+          # Service Bus namespace from the failed first run
+          az servicebus namespace delete --name sb-assignment3-carsonl15 -g "${{ env.RG_NAME }}" 2>&1 | tail -3 || true
+          # SQL Server from the failed first run
+          az sql server delete --name sql-assignment3-carsonl15 -g "${{ env.RG_NAME }}" --yes 2>&1 | tail -3 || true
+          true
+
       - name: Container App revision status
         run: |
           az containerapp revision list -n "${{ env.CONTAINER_APP_NAME }}" -g "${{ env.RG_NAME }}" \
